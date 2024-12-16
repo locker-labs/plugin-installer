@@ -12,8 +12,13 @@ import { capsuleClient } from "../capsule-client";
 import Example from "../../demo-ui/contracts/artifacts/Example.json";
 import BatchOperationsForm from "../../demo-ui/components/batch-operations-form";
 import { useBatchOperations } from "../../demo-ui/hooks/useBatchOperations";
+import { pluginManagerActions } from "@account-kit/smart-contracts";
 
 type SignWithAlchemyProps = {};
+
+const config = {
+  rpcUrl: "https://ethereum-sepolia-rpc.publicnode.com",
+}
 
 const SignWithAlchemy: React.FC<SignWithAlchemyProps> = () => {
   const { userOps, txHash, loading, error, addOperation, removeOperation, updateValue, setTxHash, setLoading } =
@@ -45,7 +50,7 @@ const SignWithAlchemy: React.FC<SignWithAlchemyProps> = () => {
     const viemClient: WalletClient = createCapsuleViemClient(capsuleClient, {
       account: viemCapsuleAccount,
       chain: sepolia,
-      transport: http("https://ethereum-sepolia-rpc.publicnode.com"),
+      transport: http(config.rpcUrl),
     });
 
     viemClient.signMessage = async ({ message }: { message: SignableMessage }): Promise<Hash> => {
@@ -61,7 +66,9 @@ const SignWithAlchemy: React.FC<SignWithAlchemyProps> = () => {
       gasManagerConfig: {
         policyId: process.env.NEXT_PUBLIC_REACT_APP_ALCHEMY_GAS_POLICY_ID!,
       },
-    });
+    })
+    
+    alchemyClient.extend(pluginManagerActions);
 
     const demoUserOperations: BatchUserOperationCallData = userOps.map((op) => ({
       target: "0x7920b6d8b07f0b9a3b96f238c64e022278db1419" as `0x${string}`,
